@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#000000">
+<title>Biblioteca</title>
+<style>
+:root{--bg:#000;--p1:#1c1c1e;--p2:#2c2c2e;--tx:#f5f5f7;--mu:#98989d;--ac:#0a84ff;--ok:#30d158;--no:#ff453a;
+--font:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+--serif:ui-serif,"New York",Georgia,serif;--spring:cubic-bezier(.32,.72,0,1);--pad:clamp(18px,4vw,56px);color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:var(--font);-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.4;
+ padding-bottom:env(safe-area-inset-bottom)}
+button{font:inherit;color:inherit}
+#amb{position:fixed;inset:-15%;z-index:-1;background:center/cover;filter:blur(80px) saturate(1.7);opacity:0;transition:opacity .7s var(--spring)}
+:focus-visible{outline:none}
+
+#top{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:18px;padding:max(12px,env(safe-area-inset-top)) var(--pad) 12px;
+ background:rgba(0,0,0,.55);-webkit-backdrop-filter:saturate(180%) blur(24px);backdrop-filter:saturate(180%) blur(24px)}
+.brand{font-weight:700;font-size:1.15rem;letter-spacing:-.02em;white-space:nowrap}
+nav{display:flex;gap:4px}
+nav button,.btn,.chip{border:0;cursor:pointer;border-radius:980px;transition:background .25s,transform .25s var(--spring),color .25s}
+nav button{background:none;padding:8px 16px;color:var(--mu);font-weight:600;font-size:.95rem}
+nav button[aria-pressed=true]{background:rgba(255,255,255,.14);color:var(--tx)}
+nav button:hover{color:var(--tx)}
+.search{margin-left:auto;position:relative;width:min(320px,42vw)}
+.search input{width:100%;height:38px;border:0;border-radius:980px;padding:0 16px 0 38px;font:inherit;font-size:.95rem;color:var(--tx);
+ background:rgba(255,255,255,.12);transition:background .25s,box-shadow .25s}
+.search input::placeholder{color:var(--mu)}
+.search input:focus{background:rgba(255,255,255,.2);box-shadow:0 0 0 3px rgba(10,132,255,.6)}
+.search svg{position:absolute;left:13px;top:50%;translate:0 -50%;width:15px;height:15px;color:var(--mu)}
+#adminBtn{border:0;background:rgba(255,255,255,.12);width:38px;height:38px;border-radius:50%;cursor:pointer;font-size:17px}
+#adminBtn:hover{background:rgba(255,255,255,.22)}
+#local{display:none;font-size:.8rem;color:#ffd60a;white-space:nowrap}
+
+.hero{display:grid;grid-template-columns:1fr auto;gap:48px;align-items:center;padding:56px var(--pad) 24px;max-width:1400px;margin:0 auto;
+ animation:in 1s var(--spring) both}
+@keyframes in{from{opacity:0;transform:translateY(24px) scale(.985)}to{opacity:1;transform:none}}
+.hero h1{font-size:clamp(2.2rem,6vw,4.4rem);line-height:1.04;letter-spacing:-.04em;margin:0 0 10px;text-wrap:balance;max-width:16ch}
+.hero .by{font-size:1.2rem;color:var(--mu);margin:0 0 18px}
+.hero .ds{font-size:1.1rem;max-width:46ch;color:#d1d1d6;margin:0 0 26px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.row2{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.btn{background:var(--tx);color:#000;padding:12px 24px;font-weight:600;font-size:1rem}
+.btn:hover{transform:scale(1.04)}.btn:active{transform:scale(.97)}
+.btn.g{background:rgba(255,255,255,.14);color:var(--tx)}
+.btn.g:hover{background:rgba(255,255,255,.24)}
+.btn:focus-visible,.chip:focus-visible,nav button:focus-visible,#adminBtn:focus-visible{box-shadow:0 0 0 3px #000,0 0 0 6px #fff}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:.8rem;font-weight:600;padding:4px 11px;border-radius:980px;background:rgba(255,255,255,.1)}
+.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.pill.ok{color:var(--ok)}.pill.no{color:var(--no)}
+
+.shelf{padding-top:14px}
+.shelf h2{font-size:1.45rem;letter-spacing:-.025em;margin:0;padding:0 var(--pad)}
+.row{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x proximity;scroll-padding-inline:var(--pad);padding:22px var(--pad) 40px;scrollbar-width:none}
+.row::-webkit-scrollbar{display:none}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:34px 22px;padding:22px var(--pad) 90px;max-width:1400px;margin:0 auto}
+.tile{all:unset;box-sizing:border-box;cursor:pointer;scroll-snap-align:start;flex:none;width:clamp(138px,15vw,186px);display:block;position:relative}
+.grid .tile{width:auto}
+.tile .cv{aspect-ratio:2/3;border-radius:14px;position:relative;overflow:hidden;padding:14px 12px;display:flex;flex-direction:column;justify-content:space-between;
+ transform:perspective(700px) rotateX(var(--rx,0)) rotateY(var(--ry,0)) scale(var(--s,1));transition:transform .3s var(--spring),box-shadow .3s var(--spring);
+ box-shadow:0 6px 20px rgba(0,0,0,.5)}
+.tile:hover .cv,.tile:focus-visible .cv{--s:1.07;box-shadow:0 22px 50px rgba(0,0,0,.7)}
+.tile:focus-visible .cv{box-shadow:0 0 0 3px #000,0 0 0 6px #fff,0 22px 50px rgba(0,0,0,.7)}
+.tile:active .cv{--s:1.02}
+.cv b{font-family:var(--serif);font-size:1.05rem;line-height:1.15;position:relative;z-index:1;text-wrap:balance}
+.cv i{font-style:normal;font-size:.7rem;opacity:.85;position:relative;z-index:1}
+.cv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:2;animation:fade .5s both}
+@keyframes fade{from{opacity:0}}
+.cv::after{content:"";position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.2),transparent 40%)}
+.dot{position:absolute;top:9px;right:9px;z-index:4;width:11px;height:11px;border-radius:50%;box-shadow:0 0 0 2px rgba(0,0,0,.55)}
+.dot.ok{background:var(--ok)}.dot.no{background:var(--no)}
+.tt{margin:12px 2px 0;font-weight:600;font-size:.92rem;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.aa{margin:1px 2px 0;font-size:.82rem;color:var(--mu);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hero .tile{width:clamp(170px,22vw,270px)}
+
+.bar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:30px var(--pad) 0;max-width:1400px;margin:0 auto}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;flex:1 1 300px}
+.chip{flex:none;background:rgba(255,255,255,.1);padding:8px 16px;font-size:.9rem;font-weight:500}
+.chip:hover{background:rgba(255,255,255,.2)}
+.chip[aria-pressed=true]{background:var(--tx);color:#000}
+.sw{display:flex;gap:8px;align-items:center;color:var(--mu);font-size:.9rem;cursor:pointer;user-select:none}
+.sw input{appearance:none;margin:0;width:42px;height:26px;border-radius:13px;background:rgba(255,255,255,.2);position:relative;cursor:pointer;transition:background .25s}
+.sw input::after{content:"";position:absolute;top:2px;left:2px;width:22px;height:22px;border-radius:50%;background:#fff;transition:transform .3s var(--spring)}
+.sw input:checked{background:var(--ok)}.sw input:checked::after{transform:translateX(16px)}
+.cnt{color:var(--mu);padding:14px var(--pad) 0;max-width:1400px;margin:0 auto;font-size:.9rem}
+.empty{grid-column:1/-1;text-align:center;padding:70px 10px;color:var(--mu)}
+.empty h2{color:var(--tx);font-size:1.6rem;letter-spacing:-.02em;margin:0 0 6px}
+code{background:rgba(255,255,255,.12);padding:2px 6px;border-radius:6px;font-size:.85em}
+
+dialog{border:0;padding:0;border-radius:28px;background:var(--p1);color:var(--tx);width:min(820px,calc(100vw - 20px));max-height:calc(100vh - 20px);overflow:auto;
+ box-shadow:0 40px 100px rgba(0,0,0,.7)}
+dialog[open]{animation:sheet .55s var(--spring)}
+dialog::backdrop{background:rgba(0,0,0,.55);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+@keyframes sheet{from{opacity:0;transform:translateY(40px) scale(.95)}}
+.sheet{display:grid;grid-template-columns:230px 1fr;gap:30px;padding:34px;position:relative;isolation:isolate}
+.sheet::before{content:"";position:absolute;inset:0;z-index:-1;background:var(--bgi) center/cover;filter:blur(50px) saturate(1.6);opacity:.4}
+.sheet .cv{aspect-ratio:2/3;border-radius:14px;position:relative;overflow:hidden;padding:14px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 20px 50px rgba(0,0,0,.6)}
+.sheet h2{font-size:2.1rem;letter-spacing:-.035em;line-height:1.08;margin:12px 0 4px}
+.sheet .by{color:#c7c7cc;font-size:1.1rem;margin:0 0 14px}
+.sheet .d{margin:0 0 16px;color:#e5e5ea;max-width:52ch}
+dl{display:grid;grid-template-columns:auto 1fr;gap:6px 18px;font-size:.92rem;margin:0 0 20px}
+dt{color:var(--mu)}dd{margin:0}
+.note{background:rgba(255,255,255,.1);border-radius:14px;padding:12px 14px;font-size:.92rem;color:#d1d1d6;margin-top:16px}
+.x{position:absolute;top:14px;right:14px;width:34px;height:34px;border:0;border-radius:50%;background:rgba(255,255,255,.16);cursor:pointer;z-index:2}
+.adm{padding:32px;position:relative;display:grid;gap:14px}
+.adm h2{margin:0;font-size:1.7rem;letter-spacing:-.03em}
+.adm p{margin:0;color:var(--mu);font-size:.92rem}
+.adm label{display:grid;gap:6px;font-size:.9rem;color:var(--mu)}
+.adm input[type=text],.adm input[type=password]{height:44px;border:0;border-radius:12px;padding:0 14px;font:inherit;color:var(--tx);background:var(--p2)}
+.adm input:focus{box-shadow:0 0 0 3px rgba(10,132,255,.7);outline:none}
+.opts{display:flex;gap:18px;flex-wrap:wrap;font-size:.92rem}
+.opts label{display:flex;gap:8px;align-items:center;color:var(--tx)}
+.adm .row2 .btn{padding:10px 20px;font-size:.95rem}
+#msg{min-height:1.4em;color:var(--tx)!important}
+details{color:var(--mu);font-size:.9rem}summary{cursor:pointer;color:var(--tx)}
+details ul{margin:8px 0 0;padding-left:20px}
+footer{text-align:center;color:var(--mu);font-size:.85rem;padding:0 0 50px}
+footer a{color:var(--ac);text-decoration:none}
+@media (max-width:760px){.hero{grid-template-columns:1fr;gap:26px;padding-top:34px}.hero .tile{order:-1}.sheet{grid-template-columns:1fr;padding:24px}.sheet .cv{max-width:150px}
+ #top{flex-wrap:wrap;gap:10px}.search{order:5;width:100%;margin:0}nav{margin-left:auto}.brand{font-size:1rem}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="amb"></div>
+<header id="top">
+  <div class="brand" id="brand">Biblioteca</div>
+  <nav aria-label="Secciones"><button data-v="home" aria-pressed="true">Inicio</button><button data-v="all" aria-pressed="false">Catálogo</button></nav>
+  <span id="local">Vista local</span>
+  <div class="search">
+    <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="8.5" cy="8.5" r="5.5"/><path d="m13 13 4 4"/></svg>
+    <input id="q" type="search" placeholder="Buscar libros" autocomplete="off" aria-label="Buscar libros">
+  </div>
+  <button id="adminBtn" aria-label="Administrar catálogo">⚙︎</button>
+</header>
+<main id="app"></main>
+<footer>Proyecto de código abierto · <a id="repo" href="#">Agrega un libro en GitHub</a></footer>
+<dialog id="sheet" aria-label="Detalle del libro"></dialog>
+<dialog id="admin" aria-label="Administrar catálogo">
+  <div class="adm">
+    <button class="x" data-close aria-label="Cerrar">✕</button>
+    <h2>Administrar catálogo</h2>
+    <div id="gate" class="adm" style="padding:0">
+      <p>Ingresa el PIN para continuar.</p>
+      <input id="pin" type="password" inputmode="numeric" aria-label="PIN">
+      <div class="row2"><button class="btn" id="pinGo">Entrar</button></div>
+    </div>
+    <div id="panel" class="adm" style="padding:0" hidden>
+      <label>Enlace de Google Sheets
+        <input id="sheetUrl" type="text" placeholder="https://docs.google.com/spreadsheets/d/…">
+      </label>
+      <div class="opts">
+        <label><input type="radio" name="mode" value="replace" checked> Reemplazar catálogo</label>
+        <label><input type="radio" name="mode" value="merge"> Agregar solo libros nuevos</label>
+      </div>
+      <div class="row2">
+        <button class="btn" id="imp">Importar</button>
+        <button class="btn g" id="cov">Buscar portadas</button>
+        <button class="btn g" id="dl">Descargar books.json</button>
+        <button class="btn g" id="rst">Restablecer</button>
+      </div>
+      <p id="msg" role="status"></p>
+      <details><summary>Cómo preparar la hoja</summary>
+        <ul>
+          <li>Primera fila con encabezados: <code>titulo</code>, <code>autor</code>, <code>categoria</code>, <code>isbn</code>, <code>año</code>, <code>disponible</code>, <code>descripcion</code>, <code>ubicacion</code>, <code>portada</code>.</li>
+          <li>Solo <code>titulo</code> es obligatorio. En <code>disponible</code> escribe Sí/No (o Disponible/Prestado).</li>
+          <li>En Google Sheets: Compartir → "Cualquier persona con el enlace" → Lector. Luego pega el enlace aquí.</li>
+          <li>Los cambios de este panel se ven solo en este navegador. Para publicarlos, descarga <code>books.json</code> y súbelo a GitHub, o define <code>sheetUrl</code> en <code>CONFIG</code> para que todos lean la hoja en vivo.</li>
+        </ul>
+      </details>
+    </div>
+  </div>
+</dialog>
+
+<script>
+/* ============ CONFIGURACIÓN: edita solo esta parte ============ */
+const CONFIG = {
+  schoolName: "Biblioteca del colegio",
+  loanInfo: "Para pedir este libro, acércate a la biblioteca del colegio con tu credencial.",
+  requestUrl: "",            // opcional: enlace a un Google Form para solicitar préstamos
+  sheetUrl: "",              // opcional: Google Sheets que todos leerán en vivo
+  adminPin: "1234",          // PIN del panel (solo oculta el panel, no es seguridad real)
+  repoUrl: "https://github.com/TU-USUARIO/TU-REPOSITORIO",
+  dataFile: "books.json"
+};
+/* =============================================================== */
+
+const $ = s => document.querySelector(s), $$ = s => [...document.querySelectorAll(s)];
+const norm = s => String(s ?? "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const safe = u => /^(https?:\/\/|data:image\/|[\w./-]+$)[^"'()\s<>]*$/i.test(u || "") ? u : "";
+const key = b => b.isbn || norm(b.title + b.author);
+const store = {
+  get: (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d } catch { return d } },
+  set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch {} },
+  del: k => { try { localStorage.removeItem(k) } catch {} }
+};
+
+let books = [], local = false;
+const state = { view: "home", cat: "Todas", free: false };
+const cache = store.get("cv", {});
+const app = $("#app"), q = $("#q");
+
+/* ---------- Portadas ---------- */
+const hue = s => { let h = 7; for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
+const grad = b => {
+  if (/^#[0-9a-f]{3,8}$/i.test(b.color || "")) return `linear-gradient(160deg,${b.color},#111)`;
+  const h = hue(b.title + b.author);
+  return `linear-gradient(160deg,hsl(${h} 58% 50%),hsl(${(h + 40) % 360} 62% 26%))`;
+};
+const imgTag = b => `<img src="${esc(b.cover)}" alt="Portada de ${esc(b.title)}" loading="lazy" referrerpolicy="no-referrer">`;
+const art = b => `<div class="cv" style="background:${grad(b)}"><b>${esc(b.title)}</b><i>${esc(b.author)}</i>${b.cover ? imgTag(b) : ""}</div>`;
+document.addEventListener("error", e => { if (e.target.matches?.(".cv img")) e.target.remove(); }, true);
+
+async function gb(query, b, strict) {
+  const r = await fetch("https://www.googleapis.com/books/v1/volumes?maxResults=4&printType=books&q=" + encodeURIComponent(query));
+  if (!r.ok) throw new Error("api");
+  for (const it of (await r.json()).items || []) {
+    const v = it.volumeInfo || {}, l = v.imageLinks;
+    if (!l) continue;
+    if (strict && !norm(v.title).includes(norm(b.title).slice(0, 10))) continue;
+    return { c: (l.thumbnail || l.smallThumbnail).replace("http:", "https:").replace("&edge=curl", "").replace("zoom=1", "zoom=2"), d: v.description || "" };
+  }
+  return null;
+}
+async function findCover(b) {
+  const k = key(b);
+  if (k in cache) return cache[k];
+  let res = null;
+  try {
+    if (b.isbn) res = await gb("isbn:" + b.isbn, b, false);
+    if (!res) res = await gb(`intitle:${b.title} inauthor:${b.author}`, b, true);
+    if (!res && b.isbn) {
+      const u = `https://covers.openlibrary.org/b/isbn/${b.isbn}-L.jpg?default=false`;
+      if (await new Promise(ok => { const i = new Image(); i.onload = () => ok(1); i.onerror = () => ok(0); i.src = u; })) res = { c: u, d: "" };
+    }
+  } catch { return null; }
+  cache[k] = res || { c: "", d: "" };
+  store.set("cv", cache);
+  return cache[k];
+}
+async function setCover(b) {
+  const r = await findCover(b);
+  if (!r?.c) return false;
+  b.cover = r.c;
+  if (!b.description && r.d) b.description = r.d.slice(0, 420);
+  $$(`.tile[data-i="${b._i}"] .cv`).forEach(cv => { if (!cv.querySelector("img")) cv.insertAdjacentHTML("beforeend", imgTag(b)); });
+  return true;
+}
+let chain = Promise.resolve();
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  io.unobserve(e.target);
+  const b = books[+e.target.dataset.i];
+  chain = chain.then(() => setCover(b)).then(() => new Promise(r => setTimeout(r, 150)));
+}), { rootMargin: "250px" });
+
+/* ---------- Render ---------- */
+const tile = b => `<button class="tile" data-i="${b._i}" ${!b.cover && !(key(b) in cache) ? "data-need" : ""} aria-label="${esc(b.title)}, ${esc(b.author)}">
+  ${art(b)}<span class="dot ${b.available ? "ok" : "no"}" title="${b.available ? "Disponible" : "Prestado"}"></span>
+  <p class="tt">${esc(b.title)}</p><p class="aa">${esc(b.author)}</p></button>`;
+const shelf = (t, l) => l.length ? `<section class="shelf"><h2>${esc(t)}</h2><div class="row">${l.map(tile).join("")}</div></section>` : "";
+const pill = b => `<span class="pill ${b.available ? "ok" : "no"}">${b.available ? "Disponible" : "Prestado"}</span>`;
+
+function heroHTML() {
+  const pool = books.filter(b => b.available && b.description);
+  const b = pool[Math.floor(Math.random() * pool.length)] || books[0];
+  if (!b) return "";
+  return `<section class="hero"><div><h1>${esc(b.title)}</h1><p class="by">${esc(b.author)} · ${esc(b.category)}</p>
+    <p class="ds">${esc(b.description)}</p><div class="row2"><button class="btn" data-i="${b._i}">Ver detalles</button>${pill(b)}</div></div>${tile(b)}</section>`;
+}
+
+function render() {
+  const terms = norm(q.value).split(/\s+/).filter(Boolean);
+  const view = terms.length ? "all" : state.view;
+  $$("nav button").forEach(n => n.setAttribute("aria-pressed", n.dataset.v === state.view && !terms.length));
+  if (!books.length) return;
+
+  if (view === "home") {
+    const cats = [...new Set(books.map(b => b.category))].sort((a, b) => a.localeCompare(b, "es"));
+    app.innerHTML = heroHTML()
+      + shelf("Disponibles ahora", books.filter(b => b.available).slice(0, 24))
+      + shelf("Agregados recientemente", [...books].reverse().slice(0, 16))
+      + cats.map(c => shelf(c, books.filter(b => b.category === c))).join("");
+  } else {
+    const list = books.filter(b => (state.cat === "Todas" || b.category === state.cat) && (!state.free || b.available)
+      && terms.every(t => norm([b.title, b.author, b.category, b.isbn, b.description].join(" ")).includes(t)))
+      .sort((a, b) => a.title.localeCompare(b.title, "es"));
+    const cats = ["Todas", ...new Set(books.map(b => b.category))];
+    app.innerHTML = `<div class="bar"><div class="chips">${cats.map(c => `<button class="chip" data-cat="${esc(c)}" aria-pressed="${c === state.cat}">${esc(c)}</button>`).join("")}</div>
+      <label class="sw"><input type="checkbox" id="free" ${state.free ? "checked" : ""}> Solo disponibles</label></div>
+      <div class="cnt">${list.length === 1 ? "1 libro" : list.length + " libros"}</div>
+      <div class="grid">${list.length ? list.map(tile).join("") : `<div class="empty"><h2>Sin resultados</h2><p>Prueba con otra palabra o quita un filtro.</p></div>`}</div>`;
+  }
+  $$(".tile[data-need]").forEach(t => io.observe(t));
+}
+
+function ambient(b) {
+  const a = $("#amb");
+  a.style.opacity = 0;
+  clearTimeout(ambient.t);
+  ambient.t = setTimeout(() => { a.style.backgroundImage = b.cover ? `url("${b.cover}")` : grad(b); a.style.opacity = .5; }, 160);
+}
+
+function openSheet(b) {
+  const bgi = b.cover ? `url('${b.cover}')` : grad(b);
+  const meta = [["Categoría", b.category], ["Año", b.year], ["ISBN", b.isbn], ["Ubicación", b.location]].filter(r => r[1]);
+  $("#sheet").innerHTML = `<div class="sheet" style="--bgi:${bgi}">
+    <button class="x" data-close aria-label="Cerrar">✕</button>${art(b)}
+    <div>${pill(b)}<h2>${esc(b.title)}</h2><p class="by">${esc(b.author)}</p>
+      ${b.description ? `<p class="d">${esc(b.description)}</p>` : ""}
+      <dl>${meta.map(([k, v]) => `<dt>${k}</dt><dd>${esc(v)}</dd>`).join("")}</dl>
+      ${b.available && CONFIG.requestUrl ? `<a class="btn" style="display:inline-block;text-decoration:none" href="${esc(CONFIG.requestUrl)}" target="_blank" rel="noopener">Solicitar préstamo</a>` : ""}
+      <div class="note">${b.available ? esc(CONFIG.loanInfo) : "Este libro está prestado en este momento. Vuelve a revisar pronto."}</div></div></div>`;
+  $("#sheet").showModal();
+}
+
+/* ---------- Datos ---------- */
+function prepare(list) {
+  books = list.filter(b => b && b.title).map((b, i) => ({
+    ...b, _i: i, author: b.author || "", category: b.category || "General", isbn: String(b.isbn || "").replace(/[-\s]/g, ""),
+    available: b.available !== false, cover: safe(b.cover), color: b.color || ""
+  }));
+  books.forEach(b => { const c = cache[key(b)]; if (!b.cover && c?.c) b.cover = c.c; if (!b.description && c?.d) b.description = c.d.slice(0, 420); });
+}
+
+function parseCSV(t) {
+  const rows = []; let r = [], c = "", inq = false;
+  for (let i = 0; i < t.length; i++) {
+    const ch = t[i];
+    if (inq) { if (ch === '"') { if (t[i + 1] === '"') { c += '"'; i++; } else inq = false; } else c += ch; }
+    else if (ch === '"') inq = true;
+    else if (ch === ",") { r.push(c); c = ""; }
+    else if (ch === "\n" || ch === "\r") { if (ch === "\r" && t[i + 1] === "\n") i++; r.push(c); rows.push(r); r = []; c = ""; }
+    else c += ch;
+  }
+  if (c || r.length) { r.push(c); rows.push(r); }
+  return rows;
+}
+const ALIAS = { title: ["titulo", "title", "libro", "nombre"], author: ["autor", "autora", "author"], category: ["categoria", "category", "genero", "tema"],
+  isbn: ["isbn"], year: ["ano", "anio", "year"], available: ["disponible", "disponibilidad", "estado", "available"],
+  description: ["descripcion", "resumen", "sinopsis", "description"], location: ["ubicacion", "estante", "location"], cover: ["portada", "imagen", "cover"], color: ["color"] };
+function rowsToBooks(rows) {
+  const head = rows[0].map(h => norm(h).trim()), col = {};
+  for (const k in ALIAS) col[k] = head.findIndex(h => ALIAS[k].includes(h));
+  if (col.title < 0) throw new Error("No encontré la columna «titulo» en la primera fila.");
+  return rows.slice(1).map(r => {
+    const g = k => col[k] >= 0 ? (r[col[k]] || "").trim() : "";
+    const av = norm(g("available"));
+    return { title: g("title"), author: g("author"), category: g("category"), isbn: g("isbn"), year: g("year"),
+      available: av === "" || /^(si|sí|true|1|yes|x|disponible)$/.test(av), description: g("description"), location: g("location"), cover: g("cover"), color: g("color") };
+  }).filter(b => b.title);
+}
+const sheetCsvUrl = u => {
+  u = u.trim();
+  const m = u.match(/spreadsheets\/d\/([\w-]+)/);
+  if (!m || /output=csv|tqx=out:csv/.test(u)) return u;
+  const g = u.match(/[#&?]gid=(\d+)/);
+  return `https://docs.google.com/spreadsheets/d/${m[1]}/gviz/tq?tqx=out:csv${g ? "&gid=" + g[1] : ""}`;
+};
+async function fetchSheet(url) {
+  const res = await fetch(sheetCsvUrl(url));
+  const text = await res.text();
+  if (!res.ok || /^\s*</.test(text)) throw new Error("No pude leer la hoja. Revisa que esté compartida como «Cualquier persona con el enlace».");
+  return rowsToBooks(parseCSV(text));
+}
+
+async function load() {
+  const saved = store.get("bk", null);
+  if (saved?.length) { prepare(saved); local = true; return; }
+  if (CONFIG.sheetUrl) { try { const l = await fetchSheet(CONFIG.sheetUrl); if (l.length) return prepare(l); } catch {} }
+  prepare(await (await fetch(CONFIG.dataFile, { cache: "no-cache" })).json());
+}
+
+/* ---------- Administración ---------- */
+const msg = t => $("#msg").textContent = t;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const exportable = () => books.map(({ _i, ...b }) => Object.fromEntries(Object.entries(b).filter(([, v]) => v !== "" && v != null)));
+const persist = () => { store.set("bk", exportable()); local = true; $("#local").style.display = "block"; };
+
+$("#adminBtn").onclick = () => {
+  $("#sheetUrl").value = store.get("sheet", CONFIG.sheetUrl);
+  const open = !CONFIG.adminPin || sessionStorage.getItem("adm") === "1";
+  $("#gate").hidden = open; $("#panel").hidden = !open; msg("");
+  $("#admin").showModal();
+  (open ? $("#sheetUrl") : $("#pin")).focus();
+};
+const unlock = () => {
+  if ($("#pin").value !== CONFIG.adminPin) { $("#pin").value = ""; $("#pin").focus(); return; }
+  sessionStorage.setItem("adm", "1"); $("#gate").hidden = true; $("#panel").hidden = false; $("#sheetUrl").focus();
+};
+$("#pinGo").onclick = unlock;
+$("#pin").onkeydown = e => { if (e.key === "Enter") unlock(); };
+
+$("#imp").onclick = async () => {
+  const url = $("#sheetUrl").value.trim();
+  if (!url) return msg("Pega primero el enlace de tu hoja de Google Sheets.");
+  msg("Importando…");
+  try {
+    const incoming = await fetchSheet(url);
+    if (!incoming.length) throw new Error("La hoja no tiene libros.");
+    store.set("sheet", url);
+    let list = incoming, added = incoming.length;
+    if ($("[name=mode]:checked").value === "merge") {
+      const have = new Set(books.map(key));
+      const fresh = incoming.filter(b => !have.has(key(b)));
+      list = [...exportable(), ...fresh]; added = fresh.length;
+    }
+    prepare(list); persist(); render();
+    msg(`Listo: ${added} libro(s) ${$("[name=mode]:checked").value === "merge" ? "nuevos agregados" : "importados"}. Total: ${books.length}.`);
+  } catch (e) { msg(e.message || "No se pudo importar."); }
+};
+$("#cov").onclick = async () => {
+  const need = books.filter(b => !b.cover); let ok = 0, n = 0;
+  if (!need.length) return msg("Todos los libros ya tienen portada.");
+  for (const b of need) { msg(`Buscando portadas… ${++n}/${need.length}`); if (await setCover(b)) ok++; await sleep(150); }
+  persist(); render(); msg(`Encontré ${ok} de ${need.length} portadas. Los demás usan una portada generada.`);
+};
+$("#dl").onclick = () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(exportable(), null, 2)], { type: "application/json" }));
+  a.download = "books.json"; a.click(); URL.revokeObjectURL(a.href);
+  msg("Descargado. Súbelo a GitHub reemplazando el books.json del repositorio.");
+};
+$("#rst").onclick = async () => {
+  store.del("bk"); store.del("cv"); local = false; $("#local").style.display = "none";
+  Object.keys(cache).forEach(k => delete cache[k]);
+  await load(); render(); msg("Catálogo restablecido a la versión publicada.");
+};
+$("#local").onclick = () => $("#adminBtn").click();
+
+/* ---------- Eventos ---------- */
+let t;
+q.addEventListener("input", () => { clearTimeout(t); t = setTimeout(render, 120); });
+$("nav").onclick = e => { const b = e.target.closest("button"); if (!b) return; state.view = b.dataset.v; q.value = ""; render(); scrollTo({ top: 0, behavior: "smooth" }); };
+app.addEventListener("click", e => {
+  const c = e.target.closest(".chip");
+  if (c) { state.cat = c.dataset.cat; return render(); }
+  const t = e.target.closest("[data-i]");
+  if (t) openSheet(books[+t.dataset.i]);
+});
+app.addEventListener("change", e => { if (e.target.id === "free") { state.free = e.target.checked; render(); } });
+document.addEventListener("click", e => {
+  if (e.target.closest("[data-close]")) e.target.closest("dialog").close();
+  else if (e.target.tagName === "DIALOG") e.target.close();
+});
+app.addEventListener("focusin", e => { const t = e.target.closest?.(".tile"); if (t) ambient(books[+t.dataset.i]); });
+app.addEventListener("pointerover", e => { const t = e.target.closest?.(".tile"); if (t) ambient(books[+t.dataset.i]); });
+app.addEventListener("pointermove", e => {
+  const t = e.target.closest(".tile"); if (!t || e.pointerType !== "mouse") return;
+  const r = t.querySelector(".cv").getBoundingClientRect();
+  t.style.setProperty("--ry", ((e.clientX - r.left) / r.width - .5) * 12 + "deg");
+  t.style.setProperty("--rx", -((e.clientY - r.top) / r.height - .5) * 12 + "deg");
+});
+app.addEventListener("pointerout", e => { const t = e.target.closest(".tile"); if (t) { t.style.setProperty("--rx", "0deg"); t.style.setProperty("--ry", "0deg"); } });
+
+/* Navegación estilo consola: flechas del teclado y control de juegos */
+function move(dir) {
+  const cur = document.activeElement.closest(".tile"); if (!cur) return;
+  const r = cur.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2, horiz = /Left|Right/.test(dir);
+  let best, bs = 1e9;
+  $$(".tile").forEach(o => {
+    if (o === cur) return;
+    const p = o.getBoundingClientRect(), dx = p.left + p.width / 2 - cx, dy = p.top + p.height / 2 - cy;
+    const ok = dir === "ArrowRight" ? dx > 10 : dir === "ArrowLeft" ? dx < -10 : dir === "ArrowDown" ? dy > 10 : dy < -10;
+    if (!ok) return;
+    const s = (horiz ? Math.abs(dx) : Math.abs(dy)) + (horiz ? Math.abs(dy) : Math.abs(dx)) * 3;
+    if (s < bs) { bs = s; best = o; }
+  });
+  if (best) { best.focus({ preventScroll: true }); best.scrollIntoView({ block: "center", inline: "center", behavior: "smooth" }); }
+}
+document.addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement !== q && !document.querySelector("dialog[open]")) { e.preventDefault(); q.focus(); return; }
+  if (!/^Arrow/.test(e.key) || document.querySelector("dialog[open]")) return;
+  if (document.activeElement === q) { if (e.key === "ArrowDown") { e.preventDefault(); $(".tile")?.focus(); } return; }
+  if (document.activeElement.closest?.(".tile")) { e.preventDefault(); move(e.key); }
+});
+const held = {};
+function pad() {
+  const g = (navigator.getGamepads?.() || []).find(Boolean);
+  if (g) {
+    const m = { ArrowLeft: g.buttons[14]?.pressed || g.axes[0] < -.6, ArrowRight: g.buttons[15]?.pressed || g.axes[0] > .6,
+      ArrowUp: g.buttons[12]?.pressed || g.axes[1] < -.6, ArrowDown: g.buttons[13]?.pressed || g.axes[1] > .6, A: g.buttons[0]?.pressed, B: g.buttons[1]?.pressed };
+    for (const k in m) {
+      if (m[k] && !held[k]) {
+        if (k === "A") document.activeElement?.click();
+        else if (k === "B") $$("dialog[open]").forEach(d => d.close());
+        else if (!document.querySelector("dialog[open]")) document.activeElement.closest?.(".tile") ? move(k) : $(".tile")?.focus();
+      }
+      held[k] = m[k];
+    }
+  }
+  requestAnimationFrame(pad);
+}
+addEventListener("gamepadconnected", () => pad(), { once: true });
+
+/* ---------- Inicio ---------- */
+(async function init() {
+  document.title = CONFIG.schoolName;
+  $("#brand").textContent = CONFIG.schoolName;
+  $("#repo").href = CONFIG.repoUrl;
+  try { await load(); }
+  catch { app.innerHTML = `<div class="empty" style="padding-top:120px"><h2>No se pudo cargar el catálogo</h2>
+    <p>Si abriste el archivo con doble clic, el navegador bloquea <code>${esc(CONFIG.dataFile)}</code>.<br>Publícalo con GitHub Pages o ejecuta <code>python3 -m http.server</code> en la carpeta.</p></div>`; return; }
+  if (local) $("#local").style.display = "block";
+  render();
+})();
+</script>
+</body>
+</html>
